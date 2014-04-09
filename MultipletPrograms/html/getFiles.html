@@ -1,0 +1,249 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>getFiles</title><meta name="generator" content="MATLAB 7.10"><meta name="date" content="2013-02-22"><meta name="m-file" content="getFiles"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">function</span> [varargout] = getFiles(varargin)
+<span class="comment">% [Sacs] = getFiles(varargin);</span>
+<span class="comment">% This function returns a cell of file names from the current directory,</span>
+<span class="comment">% given any number of inputs of regular expressions. It is analogous to the</span>
+<span class="comment">% LINUX 'ls' command, but the output is given to the user as a cell, when</span>
+<span class="comment">% using getFiles.m</span>
+<span class="comment">%</span>
+<span class="comment">% USAGE</span>
+<span class="comment">% [Sacs] = getFiles('REGEXP1','REGEXP2',...,'REGEXPN');</span>
+<span class="comment">%</span>
+<span class="comment">% INPUT</span>
+<span class="comment">%</span>
+<span class="comment">% REGEXP1:  A character regular expression, such as 'get' or 'mat'.</span>
+<span class="comment">%</span>
+<span class="comment">% OUTPUT</span>
+<span class="comment">%</span>
+<span class="comment">% Sacs:     A cell array containing the file names that match the</span>
+<span class="comment">%           requested character matches.</span>
+<span class="comment">%</span>
+<span class="comment">% EXAMPLES</span>
+<span class="comment">%</span>
+<span class="comment">% %Suppose you have a directory where JPEG images are stored under names</span>
+<span class="comment">% %that include 'November' somewhere in the title. This returns those file</span>
+<span class="comment">% %names:</span>
+<span class="comment">%</span>
+<span class="comment">% [Sacs] = getFiles('November','.jpg');</span>
+<span class="comment">%</span>
+<span class="comment">% %Suppose you have directory containing data of the form:</span>
+<span class="comment">% %STATION.CHAN.YEAR.DAY.HR.SAC</span>
+<span class="comment">% %The following command returns all .SAC files for station 'JAN', channel</span>
+<span class="comment">% %'EPZ', Julian day 340, and year 2009:</span>
+<span class="comment">%</span>
+<span class="comment">% [Sacs] = getFiles('SAC','JAN',340,2009);</span>
+<span class="comment">%</span>
+<span class="comment">%-----------------------------------------------------------------------</span>
+<span class="comment">% Latest Edit: 14.Nov.2009</span>
+<span class="comment">% Joshua D Carmichael</span>
+<span class="comment">% josh.carmichael@gmail.com</span>
+<span class="comment">%-----------------------------------------------------------------------</span>
+
+<span class="comment">% Start function</span>
+D = dir;
+I = not([D.isdir]);
+D = D(I);
+C = struct2cell(D);
+C = {C{1,:}};
+Sacs    = C(:);
+
+<span class="keyword">if</span>(nargin==0)
+
+    <span class="keyword">return</span>;
+
+<span class="keyword">else</span>
+
+    <span class="keyword">for</span> k = 1:length(varargin)
+
+        rec     = varargin{k};
+
+        <span class="keyword">if</span>(~isempty(rec))
+
+            I       = regexp(C,rec);
+            full    = cellfun(@length,I);
+            I       = logical(full);
+            C       = C(I);
+
+            Sacs    = intersect(Sacs,C(:));
+
+        <span class="keyword">end</span>;
+
+    <span class="keyword">end</span>;
+
+<span class="keyword">end</span>;
+
+Sacs = unique(Sacs);
+L    = size(Sacs,1);
+
+<span class="keyword">if</span>(L==0),
+
+    disp(sprintf(<span class="string">'\nNo files found in current directory'</span>)),
+
+    <span class="keyword">for</span> k=1:nargout
+
+        varargout{k} = [];
+
+    <span class="keyword">end</span>;
+
+<span class="keyword">end</span>;
+
+<span class="keyword">if</span>(nargout&gt;=1), varargout{1} = Sacs;    <span class="keyword">end</span>;
+<span class="keyword">if</span>(nargout&gt;=2), varargout{2} = L;       <span class="keyword">end</span>;
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.10<br></p></div><!--
+##### SOURCE BEGIN #####
+function [varargout] = getFiles(varargin)
+% [Sacs] = getFiles(varargin);
+% This function returns a cell of file names from the current directory,
+% given any number of inputs of regular expressions. It is analogous to the
+% LINUX 'ls' command, but the output is given to the user as a cell, when 
+% using getFiles.m
+% 
+% USAGE
+% [Sacs] = getFiles('REGEXP1','REGEXP2',...,'REGEXPN');
+%
+% INPUT
+%
+% REGEXP1:  A character regular expression, such as 'get' or 'mat'.
+%
+% OUTPUT
+% 
+% Sacs:     A cell array containing the file names that match the
+%           requested character matches.
+%
+% EXAMPLES
+% 
+% %Suppose you have a directory where JPEG images are stored under names
+% %that include 'November' somewhere in the title. This returns those file
+% %names:
+%
+% [Sacs] = getFiles('November','.jpg');
+%
+% %Suppose you have directory containing data of the form:
+% %STATION.CHAN.YEAR.DAY.HR.SAC
+% %The following command returns all .SAC files for station 'JAN', channel
+% %'EPZ', Julian day 340, and year 2009:
+%
+% [Sacs] = getFiles('SAC','JAN',340,2009);
+%
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+% Latest Edit: 14.Nov.2009
+% Joshua D Carmichael
+% josh.carmichael@gmail.com
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+% Start function
+D = dir;
+I = not([D.isdir]);
+D = D(I);
+C = struct2cell(D);
+C = {C{1,:}};
+Sacs    = C(:); 
+
+if(nargin==0)
+    
+    return;
+
+else
+
+    for k = 1:length(varargin)
+        
+        rec     = varargin{k};
+        
+        if(~isempty(rec))
+            
+            I       = regexp(C,rec);
+            full    = cellfun(@length,I);
+            I       = logical(full);
+            C       = C(I);
+            
+            Sacs    = intersect(Sacs,C(:));
+            
+        end;
+        
+    end;
+    
+end;
+    
+Sacs = unique(Sacs);
+L    = size(Sacs,1);
+
+if(L==0), 
+    
+    disp(sprintf('\nNo files found in current directory')), 
+    
+    for k=1:nargout
+        
+        varargout{k} = [];
+        
+    end;
+    
+end;
+
+if(nargout>=1), varargout{1} = Sacs;    end;
+if(nargout>=2), varargout{2} = L;       end;
+##### SOURCE END #####
+--></body></html>
